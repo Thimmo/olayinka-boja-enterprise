@@ -22,18 +22,36 @@ export const WHATSAPP_NUMBER = (
 ).replace(/\D/g, '')
 
 /**
- * Absolute origin used for product links inside WhatsApp messages and for
- * OpenGraph tags. Prefer the explicit value; fall back to the stable Vercel
- * production domain so a forgotten env var can't ship dead localhost links.
- * The per-deployment VERCEL_URL is deliberately not used: it changes on every
- * deploy, and these links live on in customers' chat history.
+ * Absolute origin for product links inside WhatsApp messages and for OpenGraph
+ * tags. Those links persist in customers' chat history long after a deploy, so
+ * a wrong value here is worse than a loud failure.
+ *
+ * Prefer the explicit variable, then Vercel's stable production domain — not
+ * the per-deployment VERCEL_URL, which changes on every deploy. If neither
+ * resolves while building on Vercel, stop the build rather than ship links
+ * pointing at localhost, which is a failure nobody notices until a customer
+ * taps one.
  */
-const vercelProductionUrl = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+function resolveSiteUrl(): string {
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL
+  if (explicit) return explicit
 
-export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (vercelProductionUrl ? `https://${vercelProductionUrl}` : 'http://localhost:3000')
-).replace(/\/$/, '')
+  const vercelProduction = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL
+  if (vercelProduction) return `https://${vercelProduction}`
+
+  // Set by Vercel during build and at runtime; never set locally.
+  if (process.env.VERCEL) {
+    throw new Error(
+      'Missing NEXT_PUBLIC_SITE_URL. Set it in Vercel to the live address of ' +
+        'the site, or every product link inside a WhatsApp message will point ' +
+        'at localhost and open nothing for the customer.',
+    )
+  }
+
+  return 'http://localhost:3000'
+}
+
+export const SITE_URL = resolveSiteUrl().replace(/\/$/, '')
 
 export const STORE_LOCATION = process.env.NEXT_PUBLIC_STORE_LOCATION ?? ''
 
