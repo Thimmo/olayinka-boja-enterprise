@@ -23,7 +23,7 @@ Either way the message that reaches her looks like this, and the item code
 identifies the exact roll even if the preview image fails to load:
 
 ```
-Hello Olayinka Boja Enterprise, I want to buy this dress.
+Hello Olayinka Boja Enterprise, I want to buy this fabric.
 
 Swiss voile lace
 Price: ₦45,000

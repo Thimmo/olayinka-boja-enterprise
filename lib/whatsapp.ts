@@ -13,7 +13,7 @@ export function messageFor(product: Product): string {
   const price = formatPrice(product.price)
 
   return [
-    `Hello ${STORE_NAME}, I want to buy this dress.`,
+    `Hello ${STORE_NAME}, I want to buy this fabric.`,
     '',
     product.name,
     price ? `Price: ${price}` : null,
